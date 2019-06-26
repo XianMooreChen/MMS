@@ -23,15 +23,13 @@
 | xianmoorechen/swbatch | - | - |
 
 
-### 默认配置账密
+### 数据库默认预设账密
 
-| docker镜像服务    | 账号 | 密码 |
-| :-------------------- | :----------- | :----------- |
-| xianmoorechen/mms-tomcat | admin | 1qaz2wsx |
-| xianmoorechen/mms-mysql     | mms | mms |
-| xianmoorechen/nocdashboard-tomcat   | - | - |
-| xianmoorechen/nocdashboard-postgresql   | swbatch | swbatch |
-| xianmoorechen/swbatch | - | - |
+| docker镜像服务    | 数据库名称 | 账号 | 密码 |
+| :-------------------- | :----------- | :----------- | :----------- |
+| xianmoorechen/mms-mysql     | mms | mms | mms |
+| xianmoorechen/nocdashboard-postgresql   | swbatchdb | swbatch | swbatch |
+
 
 ## 运行
 
@@ -162,7 +160,7 @@ $ vim mms/system.config
 ```javascript
 
 [MMS_DATABASE]
-url=jdbc:mysql://[vm IP]:[mysqlPort]/mms?useUnicode=true&characterEncoding=UTF-8&useOldAliasMetadataBehavior=true
+url=jdbc:mysql://[vm IP]:3307/mms?useUnicode=true&characterEncoding=UTF-8&useOldAliasMetadataBehavior=true
 user=cl7IBrG/bce0J+1OKem+AwgDlklQKsRivwIrnDHnFRY=
 pwd=cl7IBrG/bce0J+1OKem+AwgDlklQKsRivwIrnDHnFRY=
 ```
@@ -177,7 +175,7 @@ $ vim nocdashboard/Dockerfile
 
 FROM xianmoorechen/nocdashboard-tomcat
 
-MAINTAINER MMS XXXX@gmail.com
+MAINTAINER NOCDashboard XXXX@gmail.com
 
 COPY ./constant.properties /usr/local/tomcat/webapps/banktrans/WEB-INF/classes/me/gacl/websocket
 ```
@@ -190,13 +188,13 @@ $ vim nocdashboard/constant.properties
 
 ```javascript
 
-WEB_SOCKET_IP=192.168.93.68
+WEB_SOCKET_IP=[vm IP]
 WEB_SOCKET_HOST_PORT=8889
 SWITCHING_IP=127.0.0.1
 SWITCHING_PORT=2000
 
 #postgresql
-POST_DATABASE_SERVER_IP=192.168.93.68
+POST_DATABASE_SERVER_IP=[vm IP]
 POST_DATABASE_HOST_PORT=5432
 POST_DATABASE_NAME=swbatchdb
 POST_USERNAME=swbatch
@@ -204,7 +202,7 @@ POST_PASSWORD=swbatch
 POST_SERVER_ID = 2
 
 #mms
-MMS_DATABASE_SERVER_IP=192.168.93.68
+MMS_DATABASE_SERVER_IP=[vm IP]
 MMS_DATABASE_HOST_PORT=3307
 MMS_DATABASE_NAME=mms
 MMS_USERNAME=mms
@@ -213,7 +211,9 @@ MMS_PASSWORD=mms
 
 > **vm IP**，docker所在宿主机的IP
 > 
-> **mysqlPort**，mms-mysql将映射至宿主机之端口，此处建议3306
+> mysql将映射至宿主机之端口，此处预设3307
+> 
+> postgresql将映射至宿主机之端口，此处预设5432
 > 
 > 全部新建后，结构如下：
 
