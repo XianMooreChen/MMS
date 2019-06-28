@@ -179,7 +179,7 @@ http://[IP]:8888/cyber-iatoms-web/logon.do
 #### NOC Dashboard访问链接
 
 ```
-http://[IP]:8889/cyber-iatoms-web/logon.do
+http://[IP]:8889/banktrans/
 ```
 
 ## MMS效果
