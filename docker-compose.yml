@@ -1,0 +1,60 @@
+version: "2"
+
+networks:
+  mms-nocdashboard:
+
+services:
+  mms-app:
+    build: mms
+    networks:
+      - mms-nocdashboard
+    depends_on:
+      - mmsdb
+    ports:
+      - "8888:8080"
+  mmsdb:
+    image: "xianmoorechen/mms-mysql:latest"
+    container_name: "mms-mysql-container"
+    networks:
+      - mms-nocdashboard
+    environment:
+      MYSQL_ROOT_PASSWORD: mysqlroot
+    volumes:
+      - $PWD/mysql-data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+  nocdashboard-app:
+    build: nocdashboard
+    networks:
+      - mms-nocdashboard
+    depends_on:
+      - mmsdb
+      - swbatchdb
+    ports:
+      - "8889:8080"
+  swbatchdb:
+    image: "xianmoorechen/nocdashboard-psql:latest"
+    container_name: "nocdashboard-postgres-container"
+    networks:
+      - mms-nocdashboard
+    volumes:
+      - $PWD/postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  swbatch:
+    container_name: "swbatch-scratch-container"
+    build: swbatch
+    networks:
+      - mms-nocdashboard
+    depends_on:
+      - swbatchdb
+      - switchingdb
+  switchingdb:
+    image: "xianmoorechen/switching-psql:latest"
+    container_name: "switching-psql-container"
+    networks:
+      - mms-nocdashboard
+    volumes:
+      - $PWD/switching-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
