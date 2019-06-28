@@ -21,7 +21,7 @@
 | xianmoorechen/nocdashboard-tomcat   | 8889 | 8080 |
 | xianmoorechen/nocdashboard-postgresql   | 5432 | 5432 |
 | xianmoorechen/swbatch | - | - |
-
+| xianmoorechen/switching-psql   | 5433 | 5432 |
 
 ### 数据库默认预设账密
 
@@ -29,7 +29,7 @@
 | :-------------------- | :----------- | :----------- | :----------- |
 | xianmoorechen/mms-mysql     | mms | mms | mms |
 | xianmoorechen/nocdashboard-postgresql   | swbatchdb | swbatch | swbatch |
-
+| xianmoorechen/switching-psql   | mswdb | msw | mswmsw |
 
 ## 运行
 
@@ -55,11 +55,24 @@ $ mkdir mysql-data
 $ mkdir nocdashboard
 ```
 
-新建postgres-data文件夹，用于postgres数据库Data volume （数据卷）
+新建postgres-data文件夹，用于nocdashboard postgres数据库Data volume （数据卷）
 
 ```
 $ mkdir postgres-data
 ```
+
+新建postgres-data文件夹，用于放自定义batchswdb.conf配置文件
+
+```
+$ mkdir swbatch
+```
+
+新建switching-data文件夹，用于switching postgres数据库Data volume （数据卷）
+
+```
+$ mkdir switching-data
+```
+
 
 > 此步骤建立MMS相关文件路径 
 >
@@ -70,7 +83,10 @@ $ mkdir postgres-data
 ├── mms
 ├── mysql-data
 ├── nocdashboard
-└── postgres-data
+├── postgres-data
+├── swbatch
+└── switching-data
+
 ```
 
 ### ✳step 2 新建相关文件
@@ -136,7 +152,9 @@ services:
 | nocdashboard-postgresql   | 5432 |
 | swbatch |  |
 
-#### 新建mms/Dockerfile文件
+#### 新建mms/路径下文件
+
+###### 新建mms/Dockerfile文件
 
 ```
 $ vim mms/Dockerfile
@@ -151,7 +169,7 @@ MAINTAINER MMS XXXX@gmail.com
 COPY ./system.config /usr/local/tomcat/webapps/cyber-iatoms-web/WEB-INF/classes
 ```
 
-#### 新建mms/system.config文件
+###### 新建mms/system.config文件
 
 ```
 $ vim mms/system.config
@@ -165,7 +183,9 @@ user=cl7IBrG/bce0J+1OKem+AwgDlklQKsRivwIrnDHnFRY=
 pwd=cl7IBrG/bce0J+1OKem+AwgDlklQKsRivwIrnDHnFRY=
 ```
 
-#### 新建mms/Dockerfile文件
+#### 新建nocdashboard/路径下文件
+
+###### 新建nocdashboard/Dockerfile文件
 
 ```
 $ vim nocdashboard/Dockerfile
@@ -174,13 +194,11 @@ $ vim nocdashboard/Dockerfile
 ```javascript
 
 FROM xianmoorechen/nocdashboard-tomcat
-
 MAINTAINER NOCDashboard XXXX@gmail.com
-
 COPY ./constant.properties /usr/local/tomcat/webapps/banktrans/WEB-INF/classes/me/gacl/websocket
 ```
 
-新建nocdashboard/constant.properties文件
+###### 新建nocdashboard/constant.properties文件
 
 ```
 $ vim nocdashboard/constant.properties
@@ -213,13 +231,53 @@ MMS_PASSWORD=mms
 > 
 > mysql将映射至宿主机之端口，此处预设3307
 > 
-> postgresql将映射至宿主机之端口，此处预设5432
+> nocdashboard postgresql将映射至宿主机之端口，此处预设5432
 > 
+
+#### 新建swbatch/路径下文件
+
+###### 新建swbatch/Dockerfile文件
+
+```
+$ vim swbatch/Dockerfile
+```
+
+```javascript
+FROM xianmoorechen/swbatch-scratch:latest
+MAINTAINER swbatch XXXX@gmail.com
+COPY batchswdb.conf /var/swbatch/
+```
+
+###### 新建swbatch/batchswdb.conf文件
+
+```
+$ vim swbatch/constant.properties
+```
+
+```javascript
+;[switching]
+MswdbHostname = 192.168.93.68
+MswdbPort = 5433
+MswdbDBName = mswdb
+MswdbUser = msw
+MswdbPass   = mswmsw
+
+;[swbatch]
+TransdbHostname = 192.168.93.68
+TransdbPort = 5432
+TransdbDBName = swbatchdb
+TransdbUser = swbatch
+TransdbPass = swbatch
+
+; [other]
+MSG_DATA_ENCRYPT_PWD = "1111111111111111"
+```
+
+
 > 全部新建后，结构如下：
 
 ```
 .
-├── docker-compose.yml
 ├── mms
 │   ├── Dockerfile
 │   └── system.config
@@ -227,7 +285,11 @@ MMS_PASSWORD=mms
 ├── nocdashboard
 │   ├── constant.properties
 │   └── Dockerfile
-└── postgres-data
+├── postgres-data
+├── swbatch
+│   ├── batchswdb.conf
+│   └── Dockerfile
+└── switching-data
 ```
 
 
